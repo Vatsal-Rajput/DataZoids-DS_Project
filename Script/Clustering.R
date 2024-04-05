@@ -111,14 +111,24 @@ p1 <- ggplot(df_no_outliers, aes(x = Income, y = total_Mnt, color = factor(clust
 
 plot(p1)
 
+<<<<<<< HEAD
 p2 <- ggplot(df_no_outliers, aes(x = factor(cluster), y = Income),fill = cluster) +
   geom_boxplot(fill = "pink")+theme(legend.position="none")+
+=======
+p2 <- ggplot(df_no_outliers, aes(x = factor(cluster), y = Income, fill = factor(cluster))) +
+  geom_boxplot()+theme(legend.position="none")+
+>>>>>>> db55d91d629e76f58f6b9eacc355eafaa892c6de
   ggtitle("Income by Cluster")+coord_cartesian( ylim = c(0, 160000))
 
 plot(p2)
 
+<<<<<<< HEAD
 p3 <- ggplot(df_no_outliers, aes(x = factor(cluster), y = total_Mnt),fill = cluster) +
   geom_boxplot(fill = "blue")+theme(legend.position="none")+
+=======
+p3 <- ggplot(df_no_outliers, aes(x = factor(cluster), y = total_Mnt, fill = factor(cluster))) +
+  geom_boxplot()+theme(legend.position="none")+
+>>>>>>> db55d91d629e76f58f6b9eacc355eafaa892c6de
   ggtitle("Total Spending by Cluster")+coord_cartesian( ylim = c(0, 2500))
 plot(p3)
 
@@ -138,6 +148,7 @@ plot(p6)
 
 
 # Spending category analysis
+<<<<<<< HEAD
 spending_category <- c('MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds', 'cluster')
 spend <- aggregate(cbind(MntWines, MntFruits, MntMeatProducts, MntFishProducts, MntSweetProducts, MntGoldProds) ~ cluster, data = df_no_outliers, FUN = sum)
 spend <- spend[, -ncol(spend)]
@@ -189,6 +200,26 @@ spend_pct_by_category <- cbind(kmeans_cluster = row.names(spend_pct_by_category)
 
 # Plotting percentage of spending by category and cluster
 ggplot(melt(spend_pct_by_category, id.vars = "cluster"), aes(x = factor(kmeans_cluster), y = value, fill = variable)) +
+=======
+spending_columns <- c('MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds')
+spend <- aggregate(. ~ cluster, data = df_no_outliers[, c(spending_columns, 'cluster')], FUN = sum)
+spend <- spend[, -which(names(spend) == "cluster")] 
+spend_matrix <- as.matrix(spend)
+
+# Percentage of spending by clusters within each category
+spend_pct_by_category <- prop.table(spend_matrix, 1)
+
+# View the percentage data
+View(spend_pct_by_category) 
+
+# Plotting percentage of spending by category and cluster
+cluster <- c(rep("1" , 6) , rep("2" , 6) , rep("3" , 6) , rep("4" , 6) )
+category <- rep(spending_columns , 4)
+spend_pct_by_category = as.numeric(spend_pct_by_category )
+spending_data <- data.frame(cluster, category, spend_pct_by_category)
+
+ggplot(spending_data, aes(y = spend_pct_by_category, fill = category, x=cluster)) +
+>>>>>>> db55d91d629e76f58f6b9eacc355eafaa892c6de
   geom_bar(stat = "identity", position = "dodge") +
   ggtitle("Percentage of Spending by Category and Cluster") +
   xlab("Cluster") +
