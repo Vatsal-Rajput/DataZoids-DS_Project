@@ -13,8 +13,8 @@ cap-location: "top"
 papersize: "a4paper"
 page-width: 8
 margin-top: 20px
-fig-width: 8
-fig-height: 6
+fig-width: 7
+fig-height: 5
 fig-format: "png"
 fig-dpi: 300
 fig-align: "center"
@@ -30,7 +30,9 @@ header-includes:
    - \preto{\@verbatim}{\topsep=3pt \partopsep=3pt } 
    - \makeatother
 ---
+
 \pagebreak
+
 # 1.Data Analysis
 
 Our initial data exploration will involve analyzing each column of the dataset to understand its characteristics. We will utilize R's summary function to obtain a statistical overview of each variable.
@@ -40,6 +42,10 @@ library(ggplot2)
 library(corrplot)
 library(ggfortify)
 library(tidyverse)
+library(cluster)
+library(factoextra)
+library(dplyr)
+library(lubridate)
 data <- read.csv('MarketingData')
 ```
 
@@ -55,6 +61,7 @@ summary(data)
 # 1.1 Food Item Analysis
 
 This section delves into the exploration of four food item categories in our dataset: wine, meat, fish, and fruit. We focus on identifying outliers and data distribution within these categories using boxplots.
+
 ```{r,eval=TRUE,echo=FALSE}
 par(mfrow=c(1,2))
 boxplot(data$MntFishProducts,main="No. of fish purchases")
@@ -63,8 +70,9 @@ abline(mean(data$MntFishProducts),0,col="red",lwd=3)
 boxplot(data$MntFruits,main="No. of fruit purchases")
 abline(mean(data$MntFruits),0,col="red",lwd=3)
 ```
-Our analysis revealed a significant presence of outliers in all four food item categories based on the boxplots. The boxes within the plots represent the interquartile range (IQR), encompassing the middle 50% of the data. Values falling outside the whiskers extending from the boxes are considered potential outliers.
-**We have made a horizontal red line along mean and which clearly shows that our mean and median differ from each other quite a bit in each food items.**
+
+Our analysis revealed a significant presence of outliers in all four food item categories based on the boxplots. The boxes within the plots represent the interquartile range (IQR), encompassing the middle 50% of the data. Values falling outside the whiskers extending from the boxes are considered potential outliers. **We have made a horizontal red line along mean and which clearly shows that our mean and median differ from each other quite a bit in each food items.**
+
 ```{r,eval=TRUE,echo=FALSE}
 par(mfrow=c(1,2))
 boxplot(data$MntWines,main="No. of wine purchases")
@@ -74,6 +82,7 @@ boxplot(data$MntMeatProducts,main="No of meat purchases")
 abline(mean(data$MntMeatProducts),0,col="red",lwd=3)
 par(mfrow=c(1,1))
 ```
+
 # 1.2 Mosaic Plots and Our Data
 
 In this case, the mosaic plot will depict the proportion of individuals within each education level category (e.g. 2nd cycle, basic, graduation, masters, PhD) segmented by their marital status (e.g., married, single, together, divorced). The size of each rectangle will visually represent the percentage of people in that specific education level and marital status combination.
@@ -84,6 +93,7 @@ mosaicplot(table(data$Education[data$Marital_Status %in% c("Divorced", "Married"
            main="Mosaic plot Education vs Marital status",
            xlab = "Qualifications",ylab = "Marital Status",color = c("gold1","seagreen1","peachpuff2","slateblue1"))
 ```
+
 \newpage
 
 # 1.3 Correlation Plot
@@ -96,9 +106,10 @@ This correlation plot reveals a positive correlation (likely depicted by blue co
 M = cor(data[11:16])
 corrplot(M, method = 'number')
 ```
+
 ## 1.3.2 Plot 2: Correlations Between Purchase Sources
 
-This correlation plot examines the relationship between purchase sources, such as web, catalog, store, and potentially others. **We can see a negative correlation between the Number of web visits and (Number of store and catalog purchases) and we can infer from it that tech savvy people prefer less to go physically to stores **
+This correlation plot examines the relationship between purchase sources, such as web, catalog, store, and potentially others. **We can see a negative correlation between the Number of web visits and (Number of store and catalog purchases) and we can infer from it that tech savvy people prefer less to go physically to stores**
 
 ```{r,eval=TRUE,echo=FALSE}
 Q = cor(data[17:21])
@@ -123,6 +134,8 @@ First step was to clean and filter out the data which was not required. We remov
 
 ```{r}
 #| echo: false
+data <- data %>%mutate(age_at_enroll = year(Dt_Customer) - Year_Birth)
+data = data %>% mutate(days_customer_for = as.numeric(difftime(max(Dt_Customer),Dt_Customer, units = "days")))
 categorical_columns <- data %>%
   select(where(is.character))
 numerical_columns <- data %>%
@@ -133,7 +146,7 @@ required_columns <- na.omit(required_columns)
 print(head(required_columns, n=5))
 ```
 
-As we can see, there are 24 columns even after cleaning the data, which shows the high dimensionalty.
+As we can see, there are 27 columns even after cleaning the data, which shows the high dimensionalty.
 
 Then, we performed PCA which gave the following result:
 
@@ -170,5 +183,354 @@ autoplot(pc, data=required_columns)
 
 ```
 
-Thus, with the help of PCA we can reduce the data with 24 columns to upto 13 columns and still explain 80% variability in the data.
+Thus, with the help of PCA we can reduce the data with 27 columns to upto 13 columns and still explain 80% variability in the data.
 
+# 3. K-MEANS CLUSTERING
+
+After reducing the dimensionality, we moved on to clustering of the data to segment the customers according to their spending behaviors. For clustering, we considered the first 3 components from the PCA reduction.
+
+We first applied the elbow method to find the optimum number of clusters
+
+```{r}
+#| echo: false
+
+reduced_compo <- pc$x[,1:3]
+n_data = reduced_compo
+fviz_nbclust(n_data, kmeans, method = "wss") +
+  labs(title = "Elbow Method", x = "Number of clusters", y = "WCSS")
+
+```
+
+As is evident from the graph, the optimal number of clusters is 4, as after that there is not a significant reduction in the WCSS even when we increase the number of clusters.
+
+```{r}
+#| echo: false
+kmeans_model <- kmeans(n_data, centers = 4, nstart = 25)
+cluster_data <- data.frame(
+  cluster = as.factor(kmeans_model$cluster),
+  pca_1 = n_data[, 1],
+  pca_2 = n_data[, 2]
+)
+ggplot(cluster_data, aes(x = pca_1, y = pca_2, color = cluster)) +
+  geom_point(size = 3) +
+  geom_point(data = data.frame(pca_1 = kmeans_model$centers[, 1], pca_2 = kmeans_model$centers[, 2]),
+             aes(x = pca_1, y = pca_2), color = "black", size = 5, shape = "x") +
+  scale_color_manual(values = c("orange", "green","pink","blue")) +
+  labs(title = "Clusters of customers", x = "pca_1", y = "pca_2") +
+  theme_minimal()
+```
+
+The figure above represents the different clusters of customers based and their relationship with the first and second PCA components.
+
+Below we have a summary of the different characteristics of all the different clusters:
+
+```{r}
+#| echo: false
+
+cluster = cluster_data[,1]
+final_data = cbind(required_columns,cluster)
+final_data = final_data %>% mutate(total_Mnt = MntWines+MntFruits+MntMeatProducts+MntFishProducts+MntSweetProducts+MntGoldProds)
+final_data = final_data %>% mutate(num_children = Teenhome+Kidhome)
+final_data = final_data %>% mutate(num_total_purchases = NumDealsPurchases+NumWebPurchases+NumCatalogPurchases+NumStorePurchases+NumWebVisitsMonth)
+df_no_outliers <- subset(final_data, Income <= 250000)
+basic_info <- c('Income', 'num_children', 'Kidhome', 'Teenhome', 'num_total_purchases', 'total_Mnt', 'cluster')
+basic_info_summary <- t(aggregate(cbind(Income, num_children, Kidhome, Teenhome, num_total_purchases, total_Mnt) ~ cluster, data = df_no_outliers, FUN = mean))
+
+basic_info_summary = as.data.frame(basic_info_summary)
+basic_info_summary
+```
+
+# 3.1 Inference on the basis 0f Clusters
+
+## 3.1.1 Plot 1: Income and Spending Patterns
+
+```{r}
+#| echo: false
+par(mfrow=c(1,3))
+p1 <- ggplot(df_no_outliers, aes(x = Income, y = total_Mnt, color = factor(cluster))) +
+  geom_point() +
+  ggtitle("Income vs Total Spending") + coord_cartesian(xlim =c(0, 160000), ylim = c(0, 2500))
+
+plot(p1)
+
+p2 <- ggplot(df_no_outliers, aes(x = factor(cluster), y = Income, fill = factor(cluster))) + geom_boxplot()+theme(legend.position="none")+
+  ggtitle("Income by Cluster")+coord_cartesian( ylim = c(0, 160000))
+plot(p2)
+
+p3 <- ggplot(df_no_outliers, aes(x = factor(cluster), y = total_Mnt, fill = factor(cluster))) +
+  geom_boxplot()+theme(legend.position="none")+ggtitle("Total Spending by Cluster")+coord_cartesian( ylim = c(0, 2500))
+plot(p3)
+```
+
+As is evident by the plots:
+
+**Cluster 1**: This cluster is characterised by high income and high spending pattern customers. Their spending ranges from 1000 - 1500 units.
+
+**Cluster 2**: This cluster is characterized by middle income and middle spending pattern customers. They also have a high variability in spending ranging from around 250 - 800 units.
+
+**Cluster 3**: This cluster contains customers with low income and low spending patterns. They have small variability in spending ranging from just around 10 - 100 units.
+
+**Cluster 4**: This cluster is characterized by customers with highest income and highest spending patterns. They also have a large variability in spending patterns ranging from around 1400 - 1900 units.
+
+## 3.1.2 Plot 2: Number of Children
+
+```{R}
+#| echo: false
+#| warning: false 
+
+library(ggplot2)
+
+p4 <- ggplot(df_no_outliers, aes(x = factor(cluster), fill = factor(num_children))) + geom_bar(position = "dodge")+labs(title = "Count of Clusters by Number of Children")
+p5 <- ggplot(df_no_outliers, aes(x = factor(cluster), fill = factor(Kidhome))) + geom_bar(position = "dodge")+labs(title = "Count of Clusters by Kidhome")
+p6 <- ggplot(df_no_outliers, aes(x = factor(cluster), fill = factor(Teenhome))) + geom_bar(position = "dodge") + labs(title = "Count of Clusters by Teenhome")
+
+
+plot(p4)
+plot(p5)
+plot(p6)
+
+
+```
+
+Our analysis reveals distinct clusters based on income, spending habits, and the presence of children within each group:
+
+**Cluster 1:** Characterized by high income and high spending, with fewer children on average (0.13), predominantly having one child.
+
+**Cluster 4:** Represents middle-income individuals with moderate spending patterns. This group averages 1.16 children, with a higher proportion of teenagers (0.95) than younger children (0.21).
+
+**Cluster 2:** Comprises individuals with low income and spending, yet the highest number of children overall. With an average of 1.73 children, this group primarily consists of teenagers (1.02) with fewer younger children (0.71).
+
+**Cluster 3:** Exhibits the lowest income and spending levels, with a moderate number of children (0.81). Notably, most children in this group are teenagers.
+
+Understanding these clusters aids in tailoring marketing strategies and product offerings to better meet the diverse needs of customers across income levels and family demographics.
+
+## 3.1.3 Plot 3: Age Analysis
+
+```{R}
+#| echo: false
+#| warning: false 
+
+ p1 <- ggplot(df_no_outliers, aes(x = age_at_enroll, color = factor(cluster))) +
+  geom_density(kernel = "gaussian", adjust = 2) +
+  scale_color_brewer(palette = "Pastel1")
+ plot(p1)
+
+```
+
+```{R}
+#| echo: false
+#| warning: false 
+
+ p2 <- ggplot(df_no_outliers, aes(x = factor(cluster), y = age_at_enroll)) +
+  geom_boxplot(aes(color = factor(cluster))) +
+  scale_color_brewer(palette = "Pastel1")
+plot(p2)
+
+```
+
+Based on our analysis, we've identified distinct age-income dynamics among different customer segments:
+
+**High-Income Group:** Typically falls within the age range of 40-45 years old.
+
+**Lowest and Middle-Income Groups**: Predominantly consist of individuals aged 30-35 years old.
+
+**Second Lowest Income Group**: Shows the highest average age, centered around 50 years old.
+
+**Middle Income Customers:** Mostly comprise youngsters above the age of 27.
+
+By aligning strategies with these insights, businesses can optimize their approach to engage with customers across varying income levels and age groups.
+
+## 3.1.4 Plot 4: Spending Pattern on different Products
+
+```{R}
+#| echo: false
+#| warning: false 
+
+
+spending_columns <- c('MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds')
+spend <- aggregate(. ~ cluster, data = df_no_outliers[, c(spending_columns, 'cluster')], FUN = sum)
+spend <- spend[, -which(names(spend) == "cluster")] 
+spend_matrix <- as.matrix(spend)
+
+
+spend_pct_by_category <- prop.table(spend_matrix, 1)
+
+# View the percentage data
+View(spend_pct_by_category) 
+
+# Plotting percentage of spending by category and cluster
+cluster <- c(rep("1" , 6) , rep("2" , 6) , rep("3" , 6) , rep("4" , 6) )
+category <- rep(spending_columns , 4)
+spend_pct_by_category = as.numeric(spend_pct_by_category )
+spending_data <- data.frame(cluster, category, spend_pct_by_category)
+
+ggplot(spending_data, aes(y = spend_pct_by_category, fill = category, x=cluster)) +
+geom_bar(stat = "identity", position = "dodge") +
+  ggtitle("Percentage of Spending by Category and Cluster") +
+  xlab("Cluster") +
+  ylab("Percentage")
+
+
+
+
+```
+
+For food category, we can see that:
+
+The clusters spend on the category pretty much follows their overall spend. Cluster 1 spends the most on food, followed by cluster 2, cluster 3 and cluster 0.
+
+All clusters spend more than wines, followed by meat products.
+
+**Cluster 3 and cluster 1** spend significantly more (over half of their total spend) on wine compared to other categories, then around 20% on meat products
+
+**Cluster 4** spend more balanced than other clusters, this cluster spend more on gold than any other clusters. Interestingly, this cluster and cluster 0 are both lower income and lower spend clusters, but they spend more on gold than other clusters.
+
+**Cluster 2** spend around 45% on wine and 35% on meat products, they spend more than meat than other clusters
+
+## 3.1.5 Plot 5: Purchase Preferences
+
+```{R}
+#| echo: false
+#| warning: false 
+
+   promotion_list <- c('NumDealsPurchases', 'AcceptedCmp1', 'AcceptedCmp2', 'AcceptedCmp3', 'AcceptedCmp4', 'AcceptedCmp5', 'Response', 'cluster')
+promotion_summary <- aggregate(cbind(NumDealsPurchases, AcceptedCmp1, AcceptedCmp2, AcceptedCmp3, AcceptedCmp4, AcceptedCmp5, Response) ~ cluster, data = df_no_outliers, FUN = sum)
+promotion_summary
+     
+```
+
+```{R}
+#| echo: false
+#| warning: false 
+
+    p1 <- ggplot(df_no_outliers, aes(x = cluster, y = NumDealsPurchases),color = factor(cluster)) + geom_boxplot()
+plot(p1)
+     
+```
+
+Our analysis indicates that low-income customers demonstrate the highest inclination towards purchasing discounted products, followed by the lowest income group. Conversely, the highest and middle income brackets show less interest in discounted deals. This suggests that discount promotions should primarily target low-income customers to optimize sales opportunities.
+
+```{R}
+#| echo: false
+#| warning: false 
+
+   p2 <- ggplot(df_no_outliers, aes(x = cluster, y = NumStorePurchases)) + geom_boxplot()
+plot(p2)
+
+```
+
+This analysis reveals significant disparities in store purchase behavior across different income clusters:
+
+**High-Income Cluster:** Exhibits the highest frequency of store purchases, indicating a strong preference for in-store shopping among affluent customers.
+
+**Low and Lowest Income Customers:** Display similar levels of store purchases, suggesting that these income groups also favor traditional brick-and-mortar retail experiences.
+
+**Middle-Income Customers:** Show a comparatively lower preference for store purchases, indicating a potential inclination towards alternative shopping channels or consumption patterns.
+
+```{R}
+#| echo: false
+#| warning: false 
+
+    p3 <- ggplot(df_no_outliers, aes(x = cluster, y = NumWebPurchases)) + geom_boxplot()
+plot(p3)
+     
+```
+
+**Lowest Income Cluster (Cluster 3):** Displays the lowest frequency of web purchases, indicating limited engagement with online shopping platforms among individuals in this income bracket.
+
+**Low-Income Cluster:** Shows the highest level of web purchases, suggesting a significant reliance on online channels for shopping among this demographic.
+
+**High and Middle-Income Clusters (Clusters 1 and 4):** Exhibit similar levels of web purchases, indicating comparable engagement with online shopping platforms among affluent and middle-income customers.
+
+```{R}
+#| echo: false
+#| warning: false 
+
+   p4 <- ggplot(df_no_outliers, aes(x = cluster, y = NumCatalogPurchases)) + geom_boxplot()
+plot(p4)
+```
+
+Catalog purchases are most prevalent among middle-income customers, indicating a strong preference for this shopping channel. Conversely, individuals in the lowest income bracket show minimal engagement with catalogs, followed by moderate usage among high and low-income clusters.
+
+```{R}
+#| echo: false
+#| warning: false 
+
+ web_visits_by_cluster <- aggregate(NumWebVisitsMonth ~ cluster, data = df_no_outliers, FUN = sum)
+web_visits_by_cluster
+
+```
+
+```{R}
+#| echo: false
+#| warning: false 
+
+  p5 <- ggplot(df_no_outliers, aes(x = cluster, y = NumWebVisitsMonth)) + geom_boxplot()
+plot(p5)
+
+```
+
+Web visits are most frequent among the lowest income group, but their conversion to purchases is the lowest. Conversely, high and middle-income individuals visit the web less frequently but exhibit higher purchase conversion rates. This suggests a more purposeful and efficient online shopping behavior among affluent and middle-income segments.
+
+## 3.1.6 Plot 6: Recency Analysis
+
+```{R}
+#| echo: false
+#| warning: false 
+
+  ggplot(df_no_outliers, aes(x = Recency, fill = factor(cluster))) + geom_histogram(position = "dodge")
+
+```
+
+```{R}
+#| echo: false
+#| warning: false 
+
+ ggplot(df_no_outliers, aes(x = factor(cluster), y = Recency, fill = factor(cluster))) + geom_boxplot()
+
+
+```
+
+Recency analysis reveals the middle-income group with the least recent engagements, contrasting with the high-income group, which exhibits the highest recency. Interestingly, the low and lowest income clusters show recency levels akin to the high-income group, despite their lower income status. These findings emphasize the need for tailored engagement strategies across income segments to optimize customer retention and satisfaction.
+
+## 3.1.7 Plot 7: Retention Analysis
+
+```{R}
+#| echo: false
+#| warning: false 
+
+  ggplot(df_no_outliers, aes(x = days_customer_for, fill = factor(cluster))) + geom_density(alpha = 0.5)
+
+```
+
+```{R}
+#| echo: false
+#| warning: false 
+
+  ggplot(df_no_outliers, aes(x = factor(cluster), y = days_customer_for, fill = factor(cluster))) + geom_bar(stat = "summary", fun = "mean", position = "dodge")
+
+```
+
+Customer retention rates vary across income groups, with middle-income individuals showing the highest retention, followed closely by low-income customers. Interestingly, both high and lowest income groups exhibit similar, lower retention rates, indicating a propensity for changing preferences among these demographics. Tailored strategies are crucial to enhance loyalty across diverse income segments and maximize long-term customer value.
+
+# 3.2 Conclusion
+
+After conducting data analysis and clustering using K-means, four distinct customer segments emerged with unique characteristics and spending behaviors:
+
+**Cluster 4** - High Affluent and High Spender:
+
+Family Portrait: Typically childless or with only one child; diverse age distribution. Spending Behavior: Prefers in-store and catalog shopping over online; shows a preference for wine and meat products; less inclined towards discounted items and prefer traditional shopping channels.
+
+**Cluster 1** - Middle Income and Middle Spend:
+
+Family Portrait: More likely to have children, especially teenagers. Spending Behavior: Displays a strong affinity for wine purchases and discounts; exhibits higher online spending compared to other clusters showing a balance between online and offline shopping preferences.
+
+**Cluster 2** - Low Income, Low Spend:
+
+Family Portrait: Likely to have both young children and teenagers. Spending Behavior: Despite low income, allocates a significant portion of spending to wine; also shows interest in gold products.
+
+**Cluster 3** - Lowest Income, Low Spend:
+
+Family Portrait: Skews towards families with more young children than teenagers; relatively younger demographic. Spending Behavior: Balanced spending across categories; displays a preference for gold products despite limited overall spending; frequent website visits with low purchase conversion rates. Our analysis illustrates the challenges faced by lower-income families, highlighting their limited spending capacity despite preferences for certain product categories.
+
+Understanding these distinct segments allows businesses to tailor marketing strategies and product offerings to better meet the needs and preferences of each customer group, ultimately enhancing customer satisfaction and engagement.
