@@ -1,3 +1,8 @@
+# Install required libraries
+
+library(cluster)
+library(factoextra)
+library(ggplot2)
 library(readxl)
 library(dplyr)
 library(lubridate)
@@ -51,11 +56,6 @@ autoplot(pc, data=required_columns)
 
 ##CLUSTERING
 
-# Install required libraries
-
-library(cluster)
-library(factoextra)
-library(ggplot2)
 
 
 n_data = reduced_compo
@@ -114,7 +114,16 @@ basic_info_summary = as.data.frame(basic_info_summary)
 #from summary we can see that arrangement of cluster in decreasing order of income is 1,4,2,3
 
 
+
+
+
+
+
+####################################################################################################
+
 #studying nature of spending and income by different clusters
+
+#####################################################################################################
 
 p1 <- ggplot(df_no_outliers, aes(x = Income, y = total_Mnt, color = factor(cluster))) +
   geom_point() +
@@ -132,7 +141,14 @@ plot(p3)
 
 
 
+
+
+
+#####################################################################################################
+
 # Count plots for num_children, Kidhome, Teenhome
+
+##################################################################################################
 
 p4 <- ggplot(df_no_outliers, aes(x = factor(cluster), fill = factor(num_children))) + geom_bar(position = "dodge")+labs(title = "Count of Clusters by Number of Children")
 p5 <- ggplot(df_no_outliers, aes(x = factor(cluster), fill = factor(Kidhome))) + geom_bar(position = "dodge")+labs(title = "Count of Clusters by Kidhome")
@@ -142,6 +158,11 @@ p6 <- ggplot(df_no_outliers, aes(x = factor(cluster), fill = factor(Teenhome))) 
 plot(p4)
 plot(p5)
 plot(p6)
+
+
+
+
+
 
 #############################################################################################
 
@@ -173,49 +194,56 @@ geom_bar(stat = "identity", position = "dodge") +
   ylab("Percentage")
 
 
-###################################################################################################
-
-# Spending platform analysis
-
-#####################################################################################################
-
-spend_platform <- c('NumWebPurchases', 'NumCatalogPurchases', 'NumStorePurchases', 'cluster')
-spend_platform_df <- aggregate(cbind(NumWebPurchases, NumCatalogPurchases, NumStorePurchases) ~ cluster, data = df_no_outliers, FUN = sum)
-spend_platform_df <- spend_platform_df[, -ncol(spend_platform_df)]
-
-spend_platform_df <- spend_platform_df[, -which(names(spend_platform_df) == "cluster")] 
-spend_platmatrix <- as.matrix(spend_platform_df)
 
 
-# Percentage of purchases by platform across all clusters
-spend_platform_pct_by_overall <- prop.table(spend_platmatrix, 1)
-View(spend_platformpct_by_overall)
 
-# Plotting percentage of purchases by platform
-barplot(spend_platform_pct_overall, main = "Percentage of Purchases by Platform", xlab = "Platform", col = rainbow(nrow(spend_platform_pct_overall)), legend.text = row.names(spend_platform_pct_overall))
 
+################################################################################################
 # Web visits by cluster
+####################################################################################################
+
 web_visits_by_cluster <- aggregate(NumWebVisitsMonth ~ cluster, data = df_no_outliers, FUN = sum)
 web_visits_by_cluster
 
+
+
+
+
+#######################################################################################################
 # Promotion analysis
+########################################################################################################
+
 promotion_list <- c('NumDealsPurchases', 'AcceptedCmp1', 'AcceptedCmp2', 'AcceptedCmp3', 'AcceptedCmp4', 'AcceptedCmp5', 'Response', 'cluster')
 promotion_summary <- aggregate(cbind(NumDealsPurchases, AcceptedCmp1, AcceptedCmp2, AcceptedCmp3, AcceptedCmp4, AcceptedCmp5, Response) ~ cluster, data = df_no_outliers, FUN = sum)
 promotion_summary
 
+
+
+
+
+###########################################################################################
 # Recency distribution and boxplot
+#################################################################################################
+
 ggplot(df_no_outliers, aes(x = Recency, fill = factor(cluster))) + geom_histogram(position = "dodge")
 ggplot(df_no_outliers, aes(x = factor(cluster), y = Recency, fill = factor(cluster))) + geom_boxplot()
 
 
+
+
+######################################################################################################
 # Days as customer distribution and barplot
+########################################################################################################
+
 ggplot(df_no_outliers, aes(x = days_customer_for, fill = factor(cluster))) + geom_density(alpha = 0.5)
 ggplot(df_no_outliers, aes(x = factor(cluster), y = days_customer_for, fill = factor(cluster))) + geom_bar(stat = "summary", fun = "mean", position = "dodge")
 
 
+################################################################################################
+
 #Age Distribution of customers in different clusters
 
-# Assuming 'df_no_outliers' is a data frame with columns 'age_at_enroll' and 'kmeans_cluster'
+#################################################################################################
 
 p1 <- ggplot(df_no_outliers, aes(x = age_at_enroll, color = factor(cluster))) +
   geom_density(kernel = "gaussian", adjust = 2) +
