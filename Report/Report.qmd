@@ -116,7 +116,7 @@ Q = cor(data[17:21])
 corrplot(Q,method='number')
 ```
 
-## 1.4 Scatter plot between premium products
+# 1.3 Scatter plot between premium products
 
 Another analysis is using scatter plot where we can see that the buyers of the premium products of company like sweets and Wines have more income (Black color). And people with less income(Yellow color) didn't buy these products.
 
@@ -126,7 +126,67 @@ ggplot(data[data$Income<1e5,], aes(x = MntWines, y = MntSweetProducts, color=Inc
   scale_color_gradient(low = "yellow", high = "black", name = "Income")
 ```
 
-# 2. Principal Component Analysis
+# 1.5 Amount spend on products (Kid vs No Kid)
+
+his analysis show the total expenditure per customer for different products and with category kid vs no kid. It can be clearly seen that customer who have kids at their home spend more in every product category.
+
+```{r,eval=TRUE,echo=FALSE}
+bar.mat <- matrix(0,2,6)
+for(i in 0:1){
+  for(j in 1:6){
+    bar.mat[i+1,j] <- sum(data[data$Kidhome==i,j+10])/sum(data$Kidhome==i)
+  }
+}
+barplot(bar.mat,
+        main="Kid vs No Kids", 
+        ylab="Total Amount spend per customer", 
+        beside=TRUE, 
+        names.arg = c("Wines","Fruits","Meat","Fish","Sweet","Gold"),
+        col = c("pink","blue")
+)
+
+```
+
+
+
+
+# 2. Maximum Likelihood Estimator
+
+Now we tried to estimate our one of the variable NumStorePurchases using MLE. First we saw it's frequency shape using a histogram. And since it's a discrete variable. We assumed that they follow poisson distribution which is a good guess. Then using the optim function we found the best value of lambda. Below bar plot shows the density of our columns and red line shows our MLE.
+
+```{r,eval=TRUE,echo=FALSE}
+pois.lik<-function(theta,y){
+  logl<- sum(dpois(y,theta,log=TRUE))
+  return(-logl)
+}
+
+lam <- optim(0.1,pois.lik,y=data$NumStorePurchases,method="BFGS")$par
+
+c <- numeric(14)
+for(i in data$NumStorePurchases){
+  c[i+1] <- c[i+1]+1
+}
+c <- c/sum(c)
+barplot(c,names.arg = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13))
+x <- seq(0,15,1)
+lines(x,dpois(x,lam),col="red")
+legend("topright", legend = c("Poisson Distribution MLE"), 
+       col = c("red"), lty  = 1)
+
+```
+
+We can check the quality of our estimator using the qqplots. Below we have plotted a QQplot of our data wrt data from MLE. And we can see that mostly points lie on the unit slope line from which we can infer that they are similar in distribution. Whereas when we take the parameter of our distribution randomly let's say 10 then the points doesn't lie on the unit slope line
+
+```{r,eval=TRUE,echo=FALSE}
+# Creates a qqplot
+par(mfrow=c(1,2))
+qqplot(rpois(2216,lam),data$NumStorePurchases,xlab = "Theoretical quantiles of Poiss(lam)",ylab="Quantiles of our actual data",main = "Using MLE")
+abline(0,1,col="red",lwd=3)
+qqplot(rpois(2216,10),data$NumStorePurchases,xlab = "Theoretical quantiles of Poiss(lam)",ylab="Quantiles of our actual data",main = "Random lambda=10")
+abline(0,1,col="red",lwd=3)
+```
+
+# 3. Principal Component Analysis
 
 The data we have was high dimensional data with multiple columns which led to difficulty in organizing and analyzing the various components. We thus used PCA to reduce the dimensionalty of our data.
 
@@ -185,7 +245,7 @@ autoplot(pc, data=required_columns)
 
 Thus, with the help of PCA we can reduce the data with 27 columns to upto 13 columns and still explain 80% variability in the data.
 
-# 3. K-MEANS CLUSTERING
+# 4. K-Means Clustering
 
 After reducing the dimensionality, we moved on to clustering of the data to segment the customers according to their spending behaviors. For clustering, we considered the first 3 components from the PCA reduction.
 
@@ -240,9 +300,9 @@ basic_info_summary = as.data.frame(basic_info_summary)
 basic_info_summary
 ```
 
-# 3.1 Inference on the basis 0f Clusters
+# 4.1 Inference on the basis 0f Clusters
 
-## 3.1.1 Plot 1: Income and Spending Patterns
+## 4.1.1 Plot 1: Income and Spending Patterns
 
 ```{r}
 #| echo: false
@@ -272,7 +332,7 @@ As is evident by the plots:
 
 **Cluster 4**: This cluster is characterized by customers with highest income and highest spending patterns. They also have a large variability in spending patterns ranging from around 1400 - 1900 units.
 
-## 3.1.2 Plot 2: Number of Children
+## 4.1.2 Plot 2: Number of Children
 
 ```{R}
 #| echo: false
@@ -304,7 +364,7 @@ Our analysis reveals distinct clusters based on income, spending habits, and the
 
 Understanding these clusters aids in tailoring marketing strategies and product offerings to better meet the diverse needs of customers across income levels and family demographics.
 
-## 3.1.3 Plot 3: Age Analysis
+## 4.1.3 Plot 3: Age Analysis
 
 ```{R}
 #| echo: false
@@ -340,7 +400,7 @@ Based on our analysis, we've identified distinct age-income dynamics among diffe
 
 By aligning strategies with these insights, businesses can optimize their approach to engage with customers across varying income levels and age groups.
 
-## 3.1.4 Plot 4: Spending Pattern on different Products
+## 4.1.4 Plot 4: Spending Pattern on different Products
 
 ```{R}
 #| echo: false
@@ -387,7 +447,7 @@ All clusters spend more than wines, followed by meat products.
 
 **Cluster 2** spend around 45% on wine and 35% on meat products, they spend more than meat than other clusters
 
-## 3.1.5 Plot 5: Purchase Preferences
+## 4.1.5 Plot 5: Purchase Preferences
 
 ```{R}
 #| echo: false
@@ -472,7 +532,7 @@ plot(p5)
 
 Web visits are most frequent among the lowest income group, but their conversion to purchases is the lowest. Conversely, high and middle-income individuals visit the web less frequently but exhibit higher purchase conversion rates. This suggests a more purposeful and efficient online shopping behavior among affluent and middle-income segments.
 
-## 3.1.6 Plot 6: Recency Analysis
+## 4.1.6 Plot 6: Recency Analysis
 
 ```{R}
 #| echo: false
@@ -493,7 +553,7 @@ Web visits are most frequent among the lowest income group, but their conversion
 
 Recency analysis reveals the middle-income group with the least recent engagements, contrasting with the high-income group, which exhibits the highest recency. Interestingly, the low and lowest income clusters show recency levels akin to the high-income group, despite their lower income status. These findings emphasize the need for tailored engagement strategies across income segments to optimize customer retention and satisfaction.
 
-## 3.1.7 Plot 7: Retention Analysis
+## 4.1.7 Plot 7: Retention Analysis
 
 ```{R}
 #| echo: false
@@ -513,7 +573,7 @@ Recency analysis reveals the middle-income group with the least recent engagemen
 
 Customer retention rates vary across income groups, with middle-income individuals showing the highest retention, followed closely by low-income customers. Interestingly, both high and lowest income groups exhibit similar, lower retention rates, indicating a propensity for changing preferences among these demographics. Tailored strategies are crucial to enhance loyalty across diverse income segments and maximize long-term customer value.
 
-# 3.2 Conclusion
+# 4.2 Conclusion
 
 After conducting data analysis and clustering using K-means, four distinct customer segments emerged with unique characteristics and spending behaviors:
 
@@ -534,3 +594,41 @@ Family Portrait: Likely to have both young children and teenagers. Spending Beha
 Family Portrait: Skews towards families with more young children than teenagers; relatively younger demographic. Spending Behavior: Balanced spending across categories; displays a preference for gold products despite limited overall spending; frequent website visits with low purchase conversion rates. Our analysis illustrates the challenges faced by lower-income families, highlighting their limited spending capacity despite preferences for certain product categories.
 
 Understanding these distinct segments allows businesses to tailor marketing strategies and product offerings to better meet the needs and preferences of each customer group, ultimately enhancing customer satisfaction and engagement.
+
+# 5. Hypothesis Testing
+
+# 5.1 Test 1
+
+In our first testing let Null hypothesis be - Mean of the income of people who have opted for higher studies is same as to those who have not.
+
+
+```{r,eval=TRUE,echo=FALSE}
+graduation.data <- data$Income[data$Education=="Graduation"]
+
+higherstudies.data.income <- data$Income[data$Education %in% c("Master", "PhD")]
+
+t.test(graduation.data,higherstudies.data.income,var.equal=TRUE,conf.level=0.95)
+#Null hypothesis - Mean of the income of people who have opted for higher studies is same as to those who have not
+
+higherstudies.data <- data[data$Education %in% c("Graduation", "Master"),c(4,30)]
+```
+
+Based on the p-value (0.0764) being slightly higher than 0.05, we \*fail to reject the null hypothesis\* at the 95% confidence level. This implies that the observed difference in mean income (-1.773) between the graduation and higher studies groups might be due to chance and not a true population difference.
+
+
+
+
+
+# 5.2 Test 2
+
+In our second test our **Null hypothesis is- The proportion of customers who accept the offer is the same for both graduation and Master's degree holders.** This essentially suggests that education level (graduation vs. Master's) has no influence on a customer's decision to accept the offer.
+
+**Alternative Hypothesis (H₁):** The proportion of customers who accept the offer differs between graduation and Master's degree holders.
+
+```{r,eval=TRUE,echo=FALSE}
+#Prop testing
+table(higherstudies.data)
+prop.test(c(964,309),c(1116,365),conf.level=0.95, correct=FALSE)
+```
+
+In this case, with a p-value of 0.411, we fail to reject the null hypothesis, indicating that the observed difference in offer acceptance proportions might be due to chance and not a true difference between the education groups.
