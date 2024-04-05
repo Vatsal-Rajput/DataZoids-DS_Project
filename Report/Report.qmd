@@ -355,11 +355,11 @@ plot(p6)
 
 Our analysis reveals distinct clusters based on income, spending habits, and the presence of children within each group:
 
-**Cluster 1:** Characterized by high income and high spending, with fewer children on average (0.13), predominantly having one child.
+**Cluster 4:** Characterized by highest income and high spending, with fewer children on average (0.13), predominantly having one child.
 
-**Cluster 4:** Represents middle-income individuals with moderate spending patterns. This group averages 1.16 children, with a higher proportion of teenagers (0.95) than younger children (0.21).
+**Cluster 1:** Represents high-income individuals with moderate spending patterns. This group averages 1.16 children, with a higher proportion of teenagers (0.95) than younger children (0.21).
 
-**Cluster 2:** Comprises individuals with low income and spending, yet the highest number of children overall. With an average of 1.73 children, this group primarily consists of teenagers (1.02) with fewer younger children (0.71).
+**Cluster 2:** Comprises individuals with middle income and spending, yet the highest number of children overall. With an average of 1.73 children, this group primarily consists of teenagers (1.02) with fewer younger children (0.71).
 
 **Cluster 3:** Exhibits the lowest income and spending levels, with a moderate number of children (0.81). Notably, most children in this group are teenagers.
 
@@ -389,17 +389,12 @@ plot(p2)
 
 ```
 
-Based on our analysis, we've identified distinct age-income dynamics among different customer segments:
+The analysis of customer behavior reveals a distinct pattern in income distribution across age groups.
+Notably, the youngest age group dominates the highest income bracket, alongside a noteworthy alignment with the lowest income group, which shares a similar average age profile. Conversely, individuals aged 50-55 predominantly occupy the middle income bracket, indicating a peak in earning capacity and career progression for this demographic segment. 
+The concentration of mid-life earners within the middle income group suggests a stable income level corresponding to accrued experience and expertise. 
+Additionally, the high income group's average age around 50 signifies sustained financial success and stability extending into mid-life stages.
 
-**High-Income Group:** Typically falls within the age range of 40-45 years old.
-
-**Lowest and Middle-Income Groups**: Predominantly consist of individuals aged 30-35 years old.
-
-**Second Lowest Income Group**: Shows the highest average age, centered around 50 years old.
-
-**Middle Income Customers:** Mostly comprise youngsters above the age of 27.
-
-By aligning strategies with these insights, businesses can optimize their approach to engage with customers across varying income levels and age groups.
+These findings underscore the interplay between age, career trajectory, and economic status, offering valuable insights for targeted marketing strategies and tailored services to cater to diverse customer segments effectively.
 
 ## 4.1.4 Plot 4: Spending Pattern on different Products
 
@@ -469,7 +464,7 @@ plot(p1)
      
 ```
 
-Our analysis indicates that low-income customers demonstrate the highest inclination towards purchasing discounted products, followed by the lowest income group. Conversely, the highest and middle income brackets show less interest in discounted deals. This suggests that discount promotions should primarily target low-income customers to optimize sales opportunities.
+Our analysis indicates that middle-income customers demonstrate the highest inclination towards purchasing discounted products, followed by the lowest income group. Conversely, the highest and high income brackets show less interest in discounted deals. This suggests that discount promotions should primarily target low-income customers to optimize sales opportunities.
 
 ```{R}
 #| echo: false
@@ -484,9 +479,9 @@ This analysis reveals significant disparities in store purchase behavior across 
 
 **High-Income Cluster:** Exhibits the highest frequency of store purchases, indicating a strong preference for in-store shopping among affluent customers.
 
-**Low and Lowest Income Customers:** Display similar levels of store purchases, suggesting that these income groups also favor traditional brick-and-mortar retail experiences.
+**Highest and Middle Income Customers:** Display similar levels of store purchases, suggesting that these income groups also favor traditional brick-and-mortar retail experiences.
 
-**Middle-Income Customers:** Show a comparatively lower preference for store purchases, indicating a potential inclination towards alternative shopping channels or consumption patterns.
+**Low-Income Customers:** Shows the least preference for store purchases, indicating a potential inclination towards alternative shopping channels or consumption patterns.
 
 ```{R}
 #| echo: false
@@ -499,9 +494,9 @@ plot(p3)
 
 **Lowest Income Cluster (Cluster 3):** Displays the lowest frequency of web purchases, indicating limited engagement with online shopping platforms among individuals in this income bracket.
 
-**Low-Income Cluster:** Shows the highest level of web purchases, suggesting a significant reliance on online channels for shopping among this demographic.
+**Middle-Income Cluster:** Shows the highest level of web purchases, suggesting a significant reliance on online channels for shopping among this demographic.
 
-**High and Middle-Income Clusters (Clusters 1 and 4):** Exhibit similar levels of web purchases, indicating comparable engagement with online shopping platforms among affluent and middle-income customers.
+**High and Highest-Income Clusters (Clusters 1 and 4):** Exhibit similar levels of web purchases, indicating comparable engagement with online shopping platforms among these customers.
 
 ```{R}
 #| echo: false
@@ -511,7 +506,7 @@ plot(p3)
 plot(p4)
 ```
 
-Catalog purchases are most prevalent among middle-income customers, indicating a strong preference for this shopping channel. Conversely, individuals in the lowest income bracket show minimal engagement with catalogs, followed by moderate usage among high and low-income clusters.
+Catalog purchases are most prevalent among highest-income customers followed by high income customers, indicating a strong preference for this shopping channel. Conversely, individuals in the lowest income bracket show minimal engagement with catalogs and middle income bracket also does not seem to prefer the catalog purchases much but definitely they prefer it more than the lowest income group of customers.
 
 ```{R}
 #| echo: false
@@ -531,7 +526,7 @@ plot(p5)
 
 ```
 
-Web visits are most frequent among the lowest income group, but their conversion to purchases is the lowest. Conversely, high and middle-income individuals visit the web less frequently but exhibit higher purchase conversion rates. This suggests a more purposeful and efficient online shopping behavior among affluent and middle-income segments.
+Web visits are most frequent among the lowest income group, but their conversion to purchases is the lowest. Conversely, high and highest-income individuals visit the web less frequently but exhibit higher purchase conversion rates. This suggests a more purposeful and efficient online shopping behavior among high income segments.
 
 ## 4.1.6 Plot 6: Recency Analysis
 
@@ -552,7 +547,7 @@ Web visits are most frequent among the lowest income group, but their conversion
 
 ```
 
-Recency analysis reveals the middle-income group with the least recent engagements, contrasting with the high-income group, which exhibits the highest recency. Interestingly, the low and lowest income clusters show recency levels akin to the high-income group, despite their lower income status. These findings emphasize the need for tailored engagement strategies across income segments to optimize customer retention and satisfaction.
+Recency analysis reveals the highest-income group with the least recent engagements, contrasting with the high-income group, which exhibits the highest recency. Interestingly, the low and middle income clusters show recency levels akin to the high-income group, despite their lower income status. These findings emphasize the need for tailored engagement strategies across income segments to optimize customer retention and satisfaction.
 
 ## 4.1.7 Plot 7: Retention Analysis
 
@@ -572,25 +567,25 @@ Recency analysis reveals the middle-income group with the least recent engagemen
 
 ```
 
-Customer retention rates vary across income groups, with middle-income individuals showing the highest retention, followed closely by low-income customers. Interestingly, both high and lowest income groups exhibit similar, lower retention rates, indicating a propensity for changing preferences among these demographics. Tailored strategies are crucial to enhance loyalty across diverse income segments and maximize long-term customer value.
+Customer retention rates vary across income groups, with highest-income individuals showing the highest retention, followed closely by middle-income customers. Interestingly, both high and lowest income groups exhibit similar, lower retention rates, indicating a propensity for changing preferences among these demographics. Tailored strategies are crucial to enhance loyalty across diverse income segments and maximize long-term customer value.
 
 # 4.2 Conclusion
 
 After conducting data analysis and clustering using K-means, four distinct customer segments emerged with unique characteristics and spending behaviors:
 
-**Cluster 4** - High Affluent and High Spender:
+**Cluster 4** - Highest Affluent and Highest Spender:
 
 Family Portrait: Typically childless or with only one child; diverse age distribution. Spending Behavior: Prefers in-store and catalog shopping over online; shows a preference for wine and meat products; less inclined towards discounted items and prefer traditional shopping channels.
 
-**Cluster 1** - Middle Income and Middle Spend:
+**Cluster 1** - High Income and High Spend:
 
 Family Portrait: More likely to have children, especially teenagers. Spending Behavior: Displays a strong affinity for wine purchases and discounts; exhibits higher online spending compared to other clusters showing a balance between online and offline shopping preferences.
 
-**Cluster 2** - Low Income, Low Spend:
+**Cluster 2** - Middle Income, Middle Spend:
 
 Family Portrait: Likely to have both young children and teenagers. Spending Behavior: Despite low income, allocates a significant portion of spending to wine; also shows interest in gold products.
 
-**Cluster 3** - Lowest Income, Low Spend:
+**Cluster 3** - Low Income, Low Spend:
 
 Family Portrait: Skews towards families with more young children than teenagers; relatively younger demographic. Spending Behavior: Balanced spending across categories; displays a preference for gold products despite limited overall spending; frequent website visits with low purchase conversion rates. Our analysis illustrates the challenges faced by lower-income families, highlighting their limited spending capacity despite preferences for certain product categories.
 
