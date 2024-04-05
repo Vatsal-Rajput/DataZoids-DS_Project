@@ -111,14 +111,14 @@ p1 <- ggplot(df_no_outliers, aes(x = Income, y = total_Mnt, color = factor(clust
 
 plot(p1)
 
-p2 <- ggplot(df_no_outliers, aes(x = factor(cluster), y = Income),fill = cluster) +
-  geom_boxplot(fill = "pink")+theme(legend.position="none")+
+p2 <- ggplot(df_no_outliers, aes(x = factor(cluster), y = Income, fill = factor(cluster))) +
+  geom_boxplot()+theme(legend.position="none")+
   ggtitle("Income by Cluster")+coord_cartesian( ylim = c(0, 160000))
 
 plot(p2)
 
-p3 <- ggplot(df_no_outliers, aes(x = factor(cluster), y = total_Mnt),fill = cluster) +
-  geom_boxplot(fill = "blue")+theme(legend.position="none")+
+p3 <- ggplot(df_no_outliers, aes(x = factor(cluster), y = total_Mnt, fill = factor(cluster))) +
+  geom_boxplot()+theme(legend.position="none")+
   ggtitle("Total Spending by Cluster")+coord_cartesian( ylim = c(0, 2500))
 plot(p3)
 
@@ -138,57 +138,24 @@ plot(p6)
 
 
 # Spending category analysis
-spending_category <- c('MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds', 'cluster')
-spend <- aggregate(cbind(MntWines, MntFruits, MntMeatProducts, MntFishProducts, MntSweetProducts, MntGoldProds) ~ cluster, data = df_no_outliers, FUN = sum)
-spend <- spend[, -ncol(spend)]
-View(spend)
-spend = as.matrix(spend)
-typeof(spend)
-
-?prop.table
-# Percentage of spending by clusters within each category
-spend_pct_by_cluster <- prop.table(spend,1)
-
-# Check data types of columns
-str(df_no_outliers)
-
-# Convert character columns to numeric if necessary
-df_no_outliers$MntWines <- as.numeric(df_no_outliers$MntWines)
-df_no_outliers$MntFruits <- as.numeric(df_no_outliers$MntFruits)
-df_no_outliers$MntMeatProducts <- as.numeric(df_no_outliers$MntMeatProducts)
-df_no_outliers$MntFishProducts <- as.numeric(df_no_outliers$MntFishProducts)
-df_no_outliers$MntSweetProducts <- as.numeric(df_no_outliers$MntSweetProducts)
-df_no_outliers$MntGoldProds <- as.numeric(df_no_outliers$MntGoldProds)
-
-# Aggregate the sum of spending categories by cluster
-spending_category <- c('MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds', 'cluster')
-spend <- aggregate(. ~ cluster, data = df_no_outliers[, spending_category], FUN = sum)
-
-# Remove the last column (cluster) before converting to matrix
-spend <- spend[, -ncol(spend)]
-
-# View the aggregated data
-View(spend)
-
-# Convert to matrix
+spending_columns <- c('MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds')
+spend <- aggregate(. ~ cluster, data = df_no_outliers[, c(spending_columns, 'cluster')], FUN = sum)
+spend <- spend[, -which(names(spend) == "cluster")] 
 spend_matrix <- as.matrix(spend)
 
-# Calculate percentages by row
-spend_pct_by_cluster <- prop.table(spend_matrix, 1)
+# Percentage of spending by clusters within each category
+spend_pct_by_category <- prop.table(spend_matrix, 1)
 
 # View the percentage data
-View(spend_pct_by_cluster)
-
-
-
-
-# Percentage of spending by category within each cluster
-spend_pct_by_category <- spend / colSums(spend)
-spend_pct_by_category <- t(spend_pct_by_category)
-spend_pct_by_category <- cbind(kmeans_cluster = row.names(spend_pct_by_category), spend_pct_by_category)
+View(spend_pct_by_category) 
 
 # Plotting percentage of spending by category and cluster
-ggplot(melt(spend_pct_by_category, id.vars = "cluster"), aes(x = factor(kmeans_cluster), y = value, fill = variable)) +
+cluster <- c(rep("1" , 6) , rep("2" , 6) , rep("3" , 6) , rep("4" , 6) )
+category <- rep(spending_columns , 4)
+spend_pct_by_category = as.numeric(spend_pct_by_category )
+spending_data <- data.frame(cluster, category, spend_pct_by_category)
+
+ggplot(spending_data, aes(y = spend_pct_by_category, fill = category, x=cluster)) +
   geom_bar(stat = "identity", position = "dodge") +
   ggtitle("Percentage of Spending by Category and Cluster") +
   xlab("Cluster") +
