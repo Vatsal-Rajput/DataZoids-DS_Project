@@ -48,14 +48,18 @@ barplot(bar.mat,
         col = c("pink","blue")
 )
 
+#Correlation PLots
 M = cor(data[11:16])
 corrplot(M, method = 'number')
 
 Q = cor(data[17:21])
 corrplot(Q,method='number')
 
-ggplot(data, aes(x = log(MntWines), y = log(Income), color = factor(Response))) +
-  geom_point() +
-  geom_smooth(method = "lm", aes(linetype = "linear")) +  # Add best fit line
-  scale_color_manual(values = c("green", "red"))  # Set colors for Response values
+ggplot(data[data$Income<1e5,], aes(x = MntWines, y = MntSweetProducts, color=Income,size=NumWebVisitsMonth)) +
+  geom_point(alpha=0.5) +
+  scale_color_gradient(low = "yellow", high = "black", name = "Income")
+
+
+
+
 

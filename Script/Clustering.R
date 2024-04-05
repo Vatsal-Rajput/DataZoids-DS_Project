@@ -145,7 +145,7 @@ View(spend)
 spend = as.matrix(spend)
 typeof(spend)
 
-?prop.table
+
 # Percentage of spending by clusters within each category
 spend_pct_by_cluster <- prop.table(spend,1)
 
