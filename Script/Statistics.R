@@ -15,26 +15,32 @@ higherstudies.data <- data[data$Education %in% c("Graduation", "Master"),c(4,30)
 
 ### MLE
 
-summary(data$NumDealsPurchases)
+summary(data$NumStorePurchases)
 
-hist(data$NumDealsPurchases)
+hist(data$NumStorePurchases)
 
-exp.lik<-function(theta,y){
-  logl<- sum(dexp(y,theta,log=TRUE))
+pois.lik<-function(theta,y){
+  logl<- sum(dpois(y,theta,log=TRUE))
   return(-logl)
 }
 
-lam <- optim(1,exp.lik,y=data$NumDealsPurchases,method="BFGS")$par
+lam <- optim(0.1,pois.lik,y=data$NumStorePurchases,method="BFGS")$par
 
+c <- numeric(14)
+for(i in data$NumStorePurchases){
+  c[i+1] <- c[i+1]+1
+}
+c <- c/sum(c)
+barplot(c,names.arg = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13))
 x <- seq(0,15,1)
+lines(x,dpois(x,lam),col="red")
 
-hist(data$NumDealsPurchases)
 
 # Creates a qqplot
 par(mfrow=c(1,2))
-qqplot(rexp(2216,lam),data$NumDealsPurchases,xlab = "Theoretical quantiles of rexp(lam)",ylab="Quantiles of our actual data",main = "Using MLE")
+qqplot(rpois(2216,lam),data$NumStorePurchases,xlab = "Theoretical quantiles of Poiss(lam)",ylab="Quantiles of our actual data",main = "Using MLE")
 abline(0,1,col="red",lwd=3)
-qqplot(rexp(2216,2),data$NumDealsPurchases,xlab = "Theoretical quantiles of rexp(lam)",ylab="Quantiles of our actual data",main = "Random lambda=2")
+qqplot(rpois(2216,10),data$NumStorePurchases,xlab = "Theoretical quantiles of Poiss(lam)",ylab="Quantiles of our actual data",main = "Random lambda=10")
 abline(0,1,col="red",lwd=3)
 
 #Prop testing
