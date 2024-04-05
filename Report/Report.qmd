@@ -30,19 +30,32 @@ header-includes:
    - \preto{\@verbatim}{\topsep=3pt \partopsep=3pt } 
    - \makeatother
 ---
+<<<<<<< HEAD
+\pagebreak
+# 1.Data Analysis
+=======
 
 <<<<<<< HEAD
 ## 1.Data Analysis
+>>>>>>> c2c1731e545f69b28f2fd2c7b5f8ea44d95bb3ab
 
 Our initial data exploration will involve analyzing each column of the dataset to understand its characteristics. We will utilize R's summary function to obtain a statistical overview of each variable.
 
 ```{r,eval=TRUE,echo=FALSE}
 library(ggplot2)
 library(corrplot)
+<<<<<<< HEAD
+library(ggfortify)
+library(tidyverse)
+data <- read.csv('MarketingData')
+```
+
+=======
 library(tidyverse)
 library(ggfortify)
 data <- read.csv('MarketingData')
 ```
+>>>>>>> c2c1731e545f69b28f2fd2c7b5f8ea44d95bb3ab
 ```{r,eval=TRUE,echo=TRUE}
 
 head(data)
@@ -59,6 +72,10 @@ This section delves into the exploration of four food item categories in our dat
 par(mfrow=c(1,2))
 boxplot(data$MntFishProducts,main="No. of fish purchases")
 abline(mean(data$MntFishProducts),0,col="red",lwd=3)
+<<<<<<< HEAD
+
+=======
+>>>>>>> c2c1731e545f69b28f2fd2c7b5f8ea44d95bb3ab
 boxplot(data$MntFruits,main="No. of fruit purchases")
 abline(mean(data$MntFruits),0,col="red",lwd=3)
 ```
@@ -106,6 +123,17 @@ corrplot(Q,method='number')
 
 ## 1.4 Scatter plot between premium products
 
+<<<<<<< HEAD
+Another analysis is using scatter plot where we can see that the buyers of the premium products of company like sweets and Wines have more income (Black color). And people with less income(Yellow color) didn't buy these products.
+
+```{r,eval=TRUE,echo=FALSE}
+ggplot(data[data$Income<1e5,], aes(x = MntWines, y = MntSweetProducts, color=Income,size=NumWebVisitsMonth)) +
+  geom_point(alpha=0.5)+ 
+  scale_color_gradient(low = "yellow", high = "black", name = "Income")
+```
+
+=======
+>>>>>>> c2c1731e545f69b28f2fd2c7b5f8ea44d95bb3ab
 # 2. Principal Component Analysis
 
 The data we have was high dimensional data with multiple columns which led to difficulty in organizing and analyzing the various components. We thus used PCA to reduce the dimensionalty of our data.
@@ -163,15 +191,21 @@ autoplot(pc, data=required_columns)
 
 Thus, with the help of PCA we can reduce the data with 24 columns to upto 13 columns and still explain 80% variability in the data.
 
+<<<<<<< HEAD
+=======
 
 =======
+>>>>>>> c2c1731e545f69b28f2fd2c7b5f8ea44d95bb3ab
 ```{r setup, include=FALSE}
 library(readxl)
 library(dplyr)
 library(ggfortify)
 data <- read_excel("../Data/MarketingData.xlsx")
 ```
+<<<<<<< HEAD
+=======
 >>>>>>> 538b818351843ff58216a43c10b7beb63ea3990e
+>>>>>>> c2c1731e545f69b28f2fd2c7b5f8ea44d95bb3ab
 
 ## Principal Component Analysis
 
