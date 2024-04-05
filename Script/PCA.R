@@ -1,7 +1,7 @@
 library(readxl)
 library(dplyr)
 library(ggfortify)
-data <- read_excel("MarketingData.xlsx")
+data <- read_excel("../Data/MarketingData.xlsx")
 head(data)
 dim(data)
 
