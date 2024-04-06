@@ -33,7 +33,48 @@ header-includes:
 
 \pagebreak
 
-# 1.Data Analysis
+# 1. Introduction
+
+## Problem Statement:
+
+Customer Personality Analysis is a detailed analysis of a company's ideal customers. It helps a business to better understand its customers and makes it easier for them to modify products according to the specific needs, behaviors and concerns of different types of customers. Customer personality analysis helps a business to modify its product based on its target customers from different types of customer segments. For example, instead of spending money to market a new product to every customer in the company's database, a company can analyze which customer segment is most likely to buy the product and then market the product only on that particular segment.
+
+The crux of analyzing customer personalities lies in uncovering the responses to queries such as:\
+\
+1. What individuals express about your product: this sheds light on the customers' perceptions and feelings about the item.\
+2. What individuals engage in: this uncovers the actual behaviors of people concerning your product, as opposed to their stated opinions.
+
+## Data description:
+
+The marketing dataset comprises 2,240 rows and 29 columns, encapsulating essential attributes across product, people, promotion, and place domains. Product attributes include unique identifiers, product categories, features and prices . People attributes encompass customer identifiers, demographic details like age, gender, income, education, alongside preferences and segmentation data.
+
+Total Observations : 2240 Null Observations : 24 Final Dataset : 2216
+
+### Source of the data: 
+
+https://www.kaggle.com/datasets/imakash3011/customer-personality-analysis
+
+## The Data:
+
+THe datset contains 29 features, ID, Year_Birth, Education, Marital_Status, Income, Kidhome, Teenhome, Dt_Customer,Recency, MntWines, MntFruits, MntMeatProducts, MntFishProducts etc.
+
+### People:
+
+ID: Customer's unique identifier. Year_Birth: Customer's birth year. Education: Customer's education level. Marital_Status: Customer's marital status. Income: Customer's yearly household income. Kidhome: Number of children in customer's household. Teenhome: Number of teenagers in customer's household. Dt_Customer: Date of customer's enrollment with the company. Recency: Number of days since customer's last purchase. Complain: 1 if customer complained in the last 2 years, 0 otherwise.
+
+### Products:
+
+MntWines: Amount spent on wine in last 2 years. MntFruits: Amount spent on fruits in last 2 years. MntMeatProducts: Amount spent on meat in last 2 years. MntFishProducts: Amount spent on fish in last 2 years. MntSweetProducts: Amount spent on sweets in last 2 years. MntGoldProds: Amount spent on gold in last 2 years.
+
+### Promotion:
+
+NumDealsPurchases: Number of purchases made with a discount. AcceptedCmp1: 1 if customer accepted the offer in the 1st campaign, 0 otherwise. AcceptedCmp2: 1 if customer accepted the offer in the 2nd campaign, 0 otherwise. AcceptedCmp3: 1 if customer accepted the offer in the 3rd campaign, 0 otherwise. AcceptedCmp4: 1 if customer accepted the offer in the 4th campaign, 0 otherwise. AcceptedCmp5: 1 if customer accepted the offer in the 5th campaign, 0 otherwise. Response: 1 if customer accepted the offer in the last campaign, 0 otherwise.
+
+### Place:
+
+NumWebPurchases: Number of purchases made through the company's web site. NumCatalogPurchases: Number of purchases made using a catalogue. NumStorePurchases: Number of purchases made directly in stores. NumWebVisitsMonth: Number of visits to company's web site in the last month.
+
+# 2.Data Analysis
 
 Our initial data exploration will involve analyzing each column of the dataset to understand its characteristics. We will utilize R's summary function to obtain a statistical overview of each variable.
 
@@ -59,7 +100,7 @@ dim(data)
 summary(data)
 ```
 
-# 1.1 Food Item Analysis
+# 2.1 Food Item Analysis
 
 This section delves into the exploration of four food item categories in our dataset: wine, meat, fish, and fruit. We focus on identifying outliers and data distribution within these categories using boxplots.
 
@@ -84,7 +125,7 @@ abline(mean(data$MntMeatProducts),0,col="red",lwd=3)
 par(mfrow=c(1,1))
 ```
 
-# 1.2 Mosaic Plots and Our Data
+# 2.2 Mosaic Plots and Our Data
 
 In this case, the mosaic plot will depict the proportion of individuals within each education level category (e.g. 2nd cycle, basic, graduation, masters, PhD) segmented by their marital status (e.g., married, single, together, divorced). The size of each rectangle will visually represent the percentage of people in that specific education level and marital status combination.
 
@@ -97,9 +138,9 @@ mosaicplot(table(data$Education[data$Marital_Status %in% c("Divorced", "Married"
 
 \newpage
 
-# 1.3 Correlation Plot
+# 2.3 Correlation Plot
 
-## 1.3.1 Plot 1: Correlations Between All Products
+## 2.3.1 Plot 1: Correlations Between All Products
 
 This correlation plot reveals a positive correlation (likely depicted by blue color) between all the products, including seats, fruits, wine, meat, fish, and gold. Positive correlation signifies that when the value of one product increases, the values of other products tend to increase as well, and vice versa.
 
@@ -108,7 +149,7 @@ M = cor(data[11:16])
 corrplot(M, method = 'number')
 ```
 
-## 1.3.2 Plot 2: Correlations Between Purchase Sources
+## 2.3.2 Plot 2: Correlations Between Purchase Sources
 
 This correlation plot examines the relationship between purchase sources, such as web, catalog, store, and potentially others. **We can see a negative correlation between the Number of web visits and (Number of store and catalog purchases) and we can infer from it that tech savvy people prefer less to go physically to stores**
 
@@ -117,7 +158,7 @@ Q = cor(data[17:21])
 corrplot(Q,method='number')
 ```
 
-# 1.4 Scatter plot between premium products
+# 2.4 Scatter plot between premium products
 
 Another analysis is using scatter plot where we can see that the buyers of the premium products of company like sweets and Wines have more income (Black color). And people with less income(Yellow color) didn't buy these products.
 
@@ -127,7 +168,7 @@ ggplot(data[data$Income<1e5,], aes(x = MntWines, y = MntSweetProducts, color=Inc
   scale_color_gradient(low = "yellow", high = "black", name = "Income")
 ```
 
-# 1.5 Amount spend on products (Kid vs No Kid)
+# 2.5 Amount spend on products (Kid vs No Kid)
 
 his analysis show the total expenditure per customer for different products and with category kid vs no kid. It can be clearly seen that customer who have kids at their home spend more in every product category.
 
@@ -148,10 +189,7 @@ barplot(bar.mat,
 
 ```
 
-
-
-
-# 2. Maximum Likelihood Estimator
+# 3. Maximum Likelihood Estimator
 
 Now we tried to estimate our one of the variable NumStorePurchases using MLE. First we saw it's frequency shape using a histogram. And since it's a discrete variable. We assumed that they follow poisson distribution which is a good guess. Then using the optim function we found the best value of lambda. Below bar plot shows the density of our columns and red line shows our MLE.
 
@@ -187,7 +225,7 @@ qqplot(rpois(2216,10),data$NumStorePurchases,xlab = "Theoretical quantiles of Po
 abline(0,1,col="red",lwd=3)
 ```
 
-# 3. Principal Component Analysis
+# 4. Principal Component Analysis
 
 The data we have was high dimensional data with multiple columns which led to difficulty in organizing and analyzing the various components. We thus used PCA to reduce the dimensionalty of our data.
 
@@ -246,7 +284,7 @@ autoplot(pc, data=required_columns)
 
 Thus, with the help of PCA we can reduce the data with 27 columns to upto 13 columns and still explain 80% variability in the data.
 
-# 4. K-Means Clustering
+# 5. K-Means Clustering
 
 After reducing the dimensionality, we moved on to clustering of the data to segment the customers according to their spending behaviors. For clustering, we considered the first 3 components from the PCA reduction.
 
@@ -301,9 +339,9 @@ basic_info_summary = as.data.frame(basic_info_summary)
 basic_info_summary
 ```
 
-# 4.1 Inference on the basis 0f Clusters
+# 5.1 Inference on the basis 0f Clusters
 
-## 4.1.1 Plot 1: Income and Spending Patterns
+## 5.1.1 Plot 1: Income and Spending Patterns
 
 ```{r}
 #| echo: false
@@ -333,7 +371,7 @@ As is evident by the plots:
 
 **Cluster 4**: This cluster is characterized by customers with highest income and highest spending patterns. They also have a large variability in spending patterns ranging from around 1400 - 1900 units.
 
-## 4.1.2 Plot 2: Number of Children
+## 5.1.2 Plot 2: Number of Children
 
 ```{R}
 #| echo: false
@@ -365,7 +403,7 @@ Our analysis reveals distinct clusters based on income, spending habits, and the
 
 Understanding these clusters aids in tailoring marketing strategies and product offerings to better meet the diverse needs of customers across income levels and family demographics.
 
-## 4.1.3 Plot 3: Age Analysis
+## 5.1.3 Plot 3: Age Analysis
 
 ```{R}
 #| echo: false
@@ -389,14 +427,11 @@ plot(p2)
 
 ```
 
-The analysis of customer behavior reveals a distinct pattern in income distribution across age groups.
-Notably, the youngest age group dominates the highest income bracket, alongside a noteworthy alignment with the lowest income group, which shares a similar average age profile. Conversely, individuals aged 50-55 predominantly occupy the middle income bracket, indicating a peak in earning capacity and career progression for this demographic segment. 
-The concentration of mid-life earners within the middle income group suggests a stable income level corresponding to accrued experience and expertise. 
-Additionally, the high income group's average age around 50 signifies sustained financial success and stability extending into mid-life stages.
+The analysis of customer behavior reveals a distinct pattern in income distribution across age groups. Notably, the youngest age group dominates the highest income bracket, alongside a noteworthy alignment with the lowest income group, which shares a similar average age profile. Conversely, individuals aged 50-55 predominantly occupy the middle income bracket, indicating a peak in earning capacity and career progression for this demographic segment. The concentration of mid-life earners within the middle income group suggests a stable income level corresponding to accrued experience and expertise. Additionally, the high income group's average age around 50 signifies sustained financial success and stability extending into mid-life stages.
 
 These findings underscore the interplay between age, career trajectory, and economic status, offering valuable insights for targeted marketing strategies and tailored services to cater to diverse customer segments effectively.
 
-## 4.1.4 Plot 4: Spending Pattern on different Products
+## 5.1.4 Plot 4: Spending Pattern on different Products
 
 ```{R}
 #| echo: false
@@ -443,7 +478,7 @@ All clusters spend more than wines, followed by meat products.
 
 **Cluster 2** spend around 45% on wine and 35% on meat products, they spend more than meat than other clusters
 
-## 4.1.5 Plot 5: Purchase Preferences
+## 5.1.5 Plot 5: Purchase Preferences
 
 ```{R}
 #| echo: false
@@ -528,7 +563,7 @@ plot(p5)
 
 Web visits are most frequent among the lowest income group, but their conversion to purchases is the lowest. Conversely, high and highest-income individuals visit the web less frequently but exhibit higher purchase conversion rates. This suggests a more purposeful and efficient online shopping behavior among high income segments.
 
-## 4.1.6 Plot 6: Recency Analysis
+## 5.1.6 Plot 6: Recency Analysis
 
 ```{R}
 #| echo: false
@@ -549,7 +584,7 @@ Web visits are most frequent among the lowest income group, but their conversion
 
 Recency analysis reveals the highest-income group with the least recent engagements, contrasting with the high-income group, which exhibits the highest recency. Interestingly, the low and middle income clusters show recency levels akin to the high-income group, despite their lower income status. These findings emphasize the need for tailored engagement strategies across income segments to optimize customer retention and satisfaction.
 
-## 4.1.7 Plot 7: Retention Analysis
+## 5.1.7 Plot 7: Retention Analysis
 
 ```{R}
 #| echo: false
@@ -569,7 +604,7 @@ Recency analysis reveals the highest-income group with the least recent engageme
 
 Customer retention rates vary across income groups, with highest-income individuals showing the highest retention, followed closely by middle-income customers. Interestingly, both high and lowest income groups exhibit similar, lower retention rates, indicating a propensity for changing preferences among these demographics. Tailored strategies are crucial to enhance loyalty across diverse income segments and maximize long-term customer value.
 
-# 4.2 Conclusion
+# 5.2 Conclusion
 
 After conducting data analysis and clustering using K-means, four distinct customer segments emerged with unique characteristics and spending behaviors:
 
@@ -591,15 +626,15 @@ Family Portrait: Skews towards families with more young children than teenagers;
 
 Understanding these distinct segments allows businesses to tailor marketing strategies and product offerings to better meet the needs and preferences of each customer group, ultimately enhancing customer satisfaction and engagement.
 
-# 5. Linear Regression
+# 6. Linear Regression
 
 The objective of this analysis is to explore the relationship between amount spent by people on different goods and several marketing and customer-related variables. The dataset used for the analysis contains information on sales, marketing campaign outcomes, customer demographics, and purchasing behavior. By building a linear regression model, we aim to identify the key predictors that influence sales and develop insights for optimizing marketing strategies and improving sales performance.
 
-# 5.1 Methodology
+# 6.1 Methodology
 
 The linear regression analysis follows a standard methodology, including data preprocessing, model building, and evaluation. Predictor variables were selected based on their relevance to sales and underwent scaling to ensure comparability. The dataset was split into training and testing sets using a 80-20 train-test split. A multiple linear regression model was fitted to the training data using ordinary least squares estimation. Model evaluation was performed using MSE and R-squared metrics on the testing set to assess predictive performance.
 
-# 5.2 Feature Selection
+# 6.2 Feature Selection
 
 ```{r pressure, echo=FALSE}
 
@@ -637,9 +672,9 @@ summary(mod1)$coefficients
 
 ```
 
-According to the p-value, insignificant predictors were dropped, including Year_Birth and Receny.
+According to the p-value, insignificant predictors were dropped, including Year_Birth and Recency.
 
-# 5.3 Results
+# 6.3 Results
 
 ```{r pressure1, echo=FALSE}
 
@@ -653,7 +688,7 @@ summary(mod2)$coefficients
 
 The coefficients of the linear regression model are presented in Table 2. Significant predictors of sales include Income, Number of Web visits,Total number of purchases and number of kids, indicating their impact on sales performance.
 
-# 5.4 Model Performance
+# 6.4 Model Performance
 
 ```{r pressure2, echo=FALSE}
 
@@ -669,25 +704,21 @@ print(paste("R-squared:", r_squared))
 
 Mean Squared Error (MSE): The MSE of the model on the testing set is 0.273, indicating that the model's predictions are generally close to the actual values of the target variable.
 
-
 R-squared (R²): The R-squared value of the model is 0.75, suggesting that the model explains a substantial portion of the variability in the target variable, but there is still some
 
-# 5.5 Conclusion
+# 6.5 Conclusion
 
 The linear regression analysis conducted on the marketing data yielded insightful findings regarding the relationship between the predictor variables and the amount spent on products. The obtained R-squared value of 0.7492 indicates that approximately 74.92% of the variability in the amount spent can be explained by the selected predictor variables. This suggests that the model captures a substantial portion of the underlying patterns and trends in the data.
 
-
 Furthermore, the Mean Squared Error (MSE) value of 0.2738 suggests that the model's predictions are generally close to the actual values of the target variable. Although there is some variability remaining unexplained by the model, the relatively low MSE indicates that the model performs well in terms of predicting the amount spent on products.
-
 
 In summary, while the linear regression model explains a significant portion of the variability in the amount spent and provides accurate predictions, there may still be additional factors influencing purchasing behavior that are not captured by the selected predictor variables. Further refinement of the model or consideration of additional variables may enhance its predictive accuracy and provide deeper insights into consumer behavior and marketing strategies.
 
-# 6. Hypothesis Testing
+# 7. Hypothesis Testing
 
-# 6.1 Test 1
+# 7.1 Test 1
 
 In our first testing let Null hypothesis be - Mean of the income of people who have opted for higher studies is same as to those who have not.
-
 
 ```{r,eval=TRUE,echo=FALSE}
 graduation.data <- data$Income[data$Education=="Graduation"]
@@ -702,11 +733,7 @@ higherstudies.data <- data[data$Education %in% c("Graduation", "Master"),c(4,30)
 
 Based on the p-value (0.0764) being slightly higher than 0.05, we \*fail to reject the null hypothesis\* at the 95% confidence level. This implies that the observed difference in mean income (-1.773) between the graduation and higher studies groups might be due to chance and not a true population difference.
 
-
-
-
-
-# 6.2 Test 2
+# 7.2 Test 2
 
 In our second test our **Null hypothesis is- The proportion of customers who accept the offer is the same for both graduation and Master's degree holders.** This essentially suggests that education level (graduation vs. Master's) has no influence on a customer's decision to accept the offer.
 
@@ -719,3 +746,7 @@ prop.test(c(964,309),c(1116,365),conf.level=0.95, correct=FALSE)
 ```
 
 In this case, with a p-value of 0.411, we fail to reject the null hypothesis, indicating that the observed difference in offer acceptance proportions might be due to chance and not a true difference between the education groups.
+
+# 8. Acknowledgement 
+
+We are especially grateful to our professor, Shubhajit Dutta, for providing us with the valuable opportunity to undertake this project. The experience has been instrumental in conducting extensive research and has significantly broadened our understanding of the subject matter.
